@@ -31,7 +31,7 @@ func init() {
 }
 
 func genConfig() {
-	configFile := fmt.Sprintf("./%v/imagr_config.plist", repoPath)
+	configFile := fmt.Sprintf("%v/imagr_config.plist", repoPath)
 	f, err := os.Create(configFile)
 	if err != nil {
 		log.Fatal(err)
