@@ -18,9 +18,10 @@ type WorkflowComponent struct {
 }
 
 type Workflow struct {
-	Name        string              `plist:"name" json:"name"`
-	Description string              `plist:"description" json:"description"`
-	Components  []WorkflowComponent `plist:"components" json:"components"`
+	Name          string              `plist:"name" json:"name"`
+	Description   string              `plist:"description" json:"description"`
+	Components    []WorkflowComponent `plist:"components" json:"components"`
+	RestartAction string              `plist:"restart_action,omitempty" json:"restart_action"`
 }
 
 type ImagrConfig struct {

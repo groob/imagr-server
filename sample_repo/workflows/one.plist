@@ -15,5 +15,7 @@
         <string>http://imagr/images/BaseImage-10.10.3-14D131.hfs.dmg</string>
       </dict>
     </array>
+    <key>restart_action</key>
+    <string>restart</string>
   </dict>
 </plist>
