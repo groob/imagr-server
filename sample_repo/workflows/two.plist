@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>name</key>
+    <string>Yosemite - NoTools</string>
+    <key>description</key>
+    <string>Deploys the latest 10.10.x image. Munki tools and local admin account included.</string>
+    <key>components</key>
+    <array>
+      <dict>
+        <key>type</key>
+        <string>image</string>
+        <key>url</key>
+        <string>http://imagr/images/osx-10.10.3-14D131.hfs.dmg</string>
+      </dict>
+    </array>
+  </dict>
+</plist>
