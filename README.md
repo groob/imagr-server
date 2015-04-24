@@ -8,3 +8,14 @@ imagr-server expects a password to be set using the `IMAGR_PASSWORD` environment
 
 # Usage
 `$ IMAGR_PASSWORD="password" imagr-server /path/to/imagr_repo`
+
+# Docker usage
+```
+docker pull groob/imagr-server
+docker run -it --rm \
+  -p 80:3000 \
+  -e IMAGR_PASSWORD="password" \
+  --name imagr-server \
+  -v /path/to/repo:/imagr_repo \
+  groob/imagr-server
+```
