@@ -1,13 +1,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
+	"github.com/groob/imagr-server/cmd"
 	"github.com/groob/imagr-server/imagr"
+	"github.com/groob/imagr-server/server"
 )
 
 var (
@@ -17,17 +17,14 @@ var (
 )
 
 func init() {
-	flag.Parse()
 	password := os.Getenv("IMAGR_PASSWORD")
 	if password == "" {
 		log.Fatal("IMAGR_PASSWORD not set")
 	}
-	repoPath = fmt.Sprintf("%v", flag.Arg(0)) // file location
-	if repoPath == "" {
-		log.Fatal("Please specify a path to Imagr repo")
-	}
+	repoPath = *cmd.RepoPathCmd
 	Imagr.Password = imagr.EncodePassword(password)
 	Imagr.Workflows = imagr.ParseWorkflows(repoPath)
+	genConfig()
 }
 
 func genConfig() {
@@ -44,8 +41,7 @@ func genConfig() {
 }
 
 func main() {
-	genConfig()
-	log.Println("Starting server on port 3000")
-	http.Handle("/", http.FileServer(http.Dir(repoPath)))
-	http.ListenAndServe(":3000", nil)
+	if *cmd.ServeCmd == true {
+		server.Serve(repoPath)
+	}
 }

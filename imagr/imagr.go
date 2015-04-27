@@ -21,7 +21,7 @@ type Workflow struct {
 	Name          string              `plist:"name" json:"name"`
 	Description   string              `plist:"description" json:"description"`
 	Components    []WorkflowComponent `plist:"components" json:"components"`
-	RestartAction string              `plist:"restart_action,omitempty" json:"restart_action"`
+	RestartAction string              `plist:"restart_action,omitempty" json:"restart_action,omitempty"`
 }
 
 type ImagrConfig struct {
@@ -73,10 +73,10 @@ func isDirectory(path string) (bool, error) {
 	return fileInfo.IsDir(), err
 }
 
-func walkpath(path string, f os.FileInfo, err error) error {
+func wfWalkFn(path string, f os.FileInfo, err error) error {
 	if fileInfo, _ := isDirectory(path); fileInfo == false {
 		log.Printf("Parsing workflow: %s\n", path)
-		workflow, err := parseWorkflow(path)
+		workflow, err := ParseWorkflow(path)
 		if err != nil {
 			return err
 		}
@@ -85,23 +85,23 @@ func walkpath(path string, f os.FileInfo, err error) error {
 	return nil
 }
 
-func parseWorkflow(path string) (Workflow, error) {
+func ParseWorkflow(path string) (Workflow, error) {
 	var workflow Workflow
 	f, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		return Workflow{}, err
 	}
 	defer f.Close()
 
 	err = workflow.DecodePlist(f)
 	if err != nil {
-		log.Fatal(err)
+		return Workflow{}, err
 	}
 	return workflow, nil
 }
 
 func ParseWorkflows(repoPath string) (workflows []Workflow) {
 	workflowPath := fmt.Sprintf("%v/workflows", repoPath) // repo location
-	filepath.Walk(workflowPath, walkpath)
+	filepath.Walk(workflowPath, wfWalkFn)
 	return Workflows
 }
