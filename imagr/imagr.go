@@ -39,6 +39,16 @@ func (p *Workflow) DecodePlist(f *os.File) error {
 	return nil
 }
 
+func (p *Workflow) EncodePlist(f *os.File) error {
+	encoder := plist.NewEncoder(f)
+	encoder.Indent("  ")
+	err := encoder.Encode(p)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Decodes plist into struct
 func (p *ImagrConfig) DecodePlist(f *os.File) error {
 	decoder := plist.NewDecoder(f)
@@ -101,7 +111,21 @@ func ParseWorkflow(path string) (Workflow, error) {
 }
 
 func ParseWorkflows(repoPath string) (workflows []Workflow) {
+	Workflows = []Workflow{}                              // reset slice
 	workflowPath := fmt.Sprintf("%v/workflows", repoPath) // repo location
 	filepath.Walk(workflowPath, wfWalkFn)
 	return Workflows
+}
+
+func (w *Workflow) Save(file string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	err = w.EncodePlist(f)
+	if err != nil {
+		return err
+	}
+	return nil
 }
