@@ -10,7 +10,14 @@ import (
 	"howett.net/plist"
 )
 
-var Workflows []Workflow
+var (
+	Workflows []Workflow
+	password  string
+)
+
+func init() {
+	password = os.Getenv("IMAGR_PASSWORD")
+}
 
 type WorkflowComponent struct {
 	Type string `plist:"type" json:"type"`
@@ -124,6 +131,22 @@ func (w *Workflow) Save(file string) error {
 	}
 	defer f.Close()
 	err = w.EncodePlist(f)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i *ImagrConfig) UpdateConfig(repoPath string) error {
+	i.Password = EncodePassword(password)
+	i.Workflows = ParseWorkflows(repoPath)
+	configFile := fmt.Sprintf("%v/imagr_config.plist", repoPath)
+	f, err := os.Create(configFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	err = i.EncodePlist(f)
 	if err != nil {
 		return err
 	}

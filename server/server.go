@@ -26,6 +26,7 @@ func wfHandler(repoPath string) http.HandlerFunc {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Write(jsn)
 		default:
+			var config imagr.ImagrConfig
 			wfName := fmt.Sprintf("%v/workflows/%v.plist", repoPath, key)
 			switch r.Method {
 			case "GET":
@@ -54,12 +55,20 @@ func wfHandler(repoPath string) http.HandlerFunc {
 				if err != nil {
 					w.Write([]byte("Workflow could not be saved."))
 				}
+				err = config.UpdateConfig(repoPath)
+				if err != nil {
+					log.Println("Failed to update config.")
+				}
 			case "DELETE":
 				log.Println("Deleting workflow")
 				err := os.Remove(wfName)
 				if err != nil {
 					w.Write([]byte("Could not delete workflow."))
 					log.Println(err)
+				}
+				err = config.UpdateConfig(repoPath)
+				if err != nil {
+					log.Println("Failed to update config.")
 				}
 			default:
 				w.Write([]byte("Method not supported."))

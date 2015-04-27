@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -13,7 +12,7 @@ import (
 var (
 	repoPath string
 	password string
-	Imagr    imagr.ImagrConfig
+	config   imagr.ImagrConfig
 )
 
 func init() {
@@ -22,22 +21,7 @@ func init() {
 		log.Fatal("IMAGR_PASSWORD not set")
 	}
 	repoPath = *cmd.RepoPathCmd
-	Imagr.Password = imagr.EncodePassword(password)
-	Imagr.Workflows = imagr.ParseWorkflows(repoPath)
-	genConfig()
-}
-
-func genConfig() {
-	configFile := fmt.Sprintf("%v/imagr_config.plist", repoPath)
-	f, err := os.Create(configFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	err = Imagr.EncodePlist(f)
-	if err != nil {
-		log.Fatal(err)
-	}
+	config.UpdateConfig(repoPath)
 }
 
 func main() {
