@@ -1,11 +1,14 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/groob/imagr-server/imagr"
 )
@@ -15,8 +18,23 @@ func wfHandler(repoPath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Path[len("/v1/workflows/"):]
 		switch key {
+		case "":
+			w.Write([]byte("No Workflow specified"))
 		case "all":
-			workflows := imagr.ParseWorkflows(repoPath)
+			var workflows []string
+			workflowPath := fmt.Sprintf("%v/workflows/", repoPath)
+			files, _ := ioutil.ReadDir(workflowPath)
+			for _, f := range files {
+				if strings.SplitN(f.Name(), ".", 2)[1] == "plist" {
+					workflows = append(workflows, f.Name())
+				}
+			}
+			var buf bytes.Buffer
+			encoder := json.NewEncoder(&buf)
+			err := encoder.Encode(&workflows)
+			if err != nil {
+				log.Println(err)
+			}
 			jsn, err := json.MarshalIndent(workflows, "", "\t")
 			if err != nil {
 				log.Println(err)
