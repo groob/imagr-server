@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"howett.net/plist"
 )
@@ -25,6 +26,7 @@ type WorkflowComponent struct {
 }
 
 type Workflow struct {
+	ID            string              `plist:"-" json:"id"`
 	Name          string              `plist:"name" json:"name"`
 	Description   string              `plist:"description" json:"description"`
 	Components    []WorkflowComponent `plist:"components" json:"components"`
@@ -109,7 +111,9 @@ func ParseWorkflow(path string) (Workflow, error) {
 		return Workflow{}, err
 	}
 	defer f.Close()
-
+	basename, _ := f.Stat()
+	workflow.ID = strings.TrimSuffix(basename.Name(),
+		filepath.Ext(basename.Name())) // Get ID from FileName
 	err = workflow.DecodePlist(f)
 	if err != nil {
 		return Workflow{}, err

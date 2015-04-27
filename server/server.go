@@ -1,14 +1,11 @@
 package server
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/groob/imagr-server/imagr"
 )
@@ -21,21 +18,7 @@ func wfHandler(repoPath string) http.HandlerFunc {
 		case "":
 			w.Write([]byte("No Workflow specified"))
 		case "all":
-			var workflows []string
-			workflowPath := fmt.Sprintf("%v/workflows/", repoPath)
-			files, _ := ioutil.ReadDir(workflowPath)
-			for _, f := range files {
-				if strings.SplitN(f.Name(), ".", 2)[1] == "plist" {
-					workflows = append(workflows, f.Name())
-				}
-			}
-			var buf bytes.Buffer
-			encoder := json.NewEncoder(&buf)
-			err := encoder.Encode(&workflows)
-			if err != nil {
-				log.Println(err)
-			}
-			jsn, err := json.MarshalIndent(workflows, "", "\t")
+			jsn, err := json.MarshalIndent(imagr.ParseWorkflows(repoPath), "", "\t")
 			if err != nil {
 				log.Println(err)
 				w.Write([]byte("There was an error. Check the logs"))
@@ -77,6 +60,7 @@ func wfHandler(repoPath string) http.HandlerFunc {
 				if err != nil {
 					log.Println("Failed to update config.")
 				}
+				w.Write([]byte(key + "\n")) //return the UUID created.
 			case "DELETE":
 				log.Println("Deleting workflow")
 				err := os.Remove(wfName)
@@ -88,6 +72,7 @@ func wfHandler(repoPath string) http.HandlerFunc {
 				if err != nil {
 					log.Println("Failed to update config.")
 				}
+				w.Write([]byte(key + "\n")) //return the UUID deleted.
 			default:
 				w.Write([]byte("Method not supported."))
 			}

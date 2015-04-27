@@ -7,7 +7,8 @@ imagr-server expects a password to be set using the `IMAGR_PASSWORD` environment
 
 
 # Usage
-`$ IMAGR_PASSWORD="password" imagr-server -repo /path/to/imagr_repo`
+`$ IMAGR_PASSWORD="password" imagr-server -repo /path/to/imagr_repo`  
+Use `-serve` to serve the repo over HTTP.  
 `$ IMAGR_PASSWORD="password" imagr-server -repo /path/to/imagr_repo -serve`
 
 # Docker usage
@@ -22,24 +23,17 @@ docker run -it --rm \
 ```
 
 # API usage
-imagr-server now supports GET/PUT/DELETE operations on workflows.
-Example:
+imagr-server now supports GET/PUT/DELETE operations on workflows.  
+I use `uuidgen` to name files based on UUID  
+When the file is saved as a plist, the UUID becomes the filename.  
+When returning JSON, the UUID will become an ID.  
+
+
+Example API usage to add/remove workflows:
 
 ```
-~ ❯❯❯ curl -H 'Content-Type: application/json' localhost:3000/v1/workflows/three
-Workflow does not exist.%                                                                                                                                                                      ~ ❯❯❯ curl -H 'Content-Type: application/json' -X PUT -d @test.json localhost:3000/v1/workflows/three
-~ ❯❯❯ curl -H 'Content-Type: application/json' localhost:3000/v1/workflows/three
-{
-        "name": "Yosemite - MunkiTools",
-        "description": "Deploys the latest 10.10.x image. Munki tools and local admin account included.",
-        "components": [
-                {
-                        "type": "image",
-                        "url": "http://imagr/images/BaseImage-10.10.3-14D131.hfs.dmg"
-                }
-        ],
-        "restart_action": "restart"
-}%                                                                                                                                                                                             ~ ❯❯❯ curl -H 'Content-Type: application/json' -X DELETE localhost:3000/v1/workflows/three
-~ ❯❯❯ curl -H 'Content-Type: application/json' localhost:3000/v1/workflows/three
-Workflow does not exist.%
+$ curl -H 'Content-Type: application/json' -X PUT -d @test.json "http://imagr/v1/workflows/$(uuidgen)"
+E77EBEF4-D55B-4743-BEB8-B26E4C87E73F
+$ curl -X DELETE http://imagr/v1/workflows/E77EBEF4-D55B-4743-BEB8-B26E4C87E73F
+E77EBEF4-D55B-4743-BEB8-B26E4C87E73F
 ```
