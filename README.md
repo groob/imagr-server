@@ -19,3 +19,26 @@ docker run -it --rm \
   -v /path/to/repo:/imagr_repo \
   groob/imagr-server
 ```
+
+# API usage
+imagr-server now supports GET/PUT/DELETE operations on workflows.
+Example:
+
+```
+~ ❯❯❯ curl -H 'Content-Type: application/json' localhost:3000/v1/workflows/three
+Workflow does not exist.%                                                                                                                                                                      ~ ❯❯❯ curl -H 'Content-Type: application/json' -X PUT -d @test.json localhost:3000/v1/workflows/three
+~ ❯❯❯ curl -H 'Content-Type: application/json' localhost:3000/v1/workflows/three
+{
+        "name": "Yosemite - MunkiTools",
+        "description": "Deploys the latest 10.10.x image. Munki tools and local admin account included.",
+        "components": [
+                {
+                        "type": "image",
+                        "url": "http://imagr/images/BaseImage-10.10.3-14D131.hfs.dmg"
+                }
+        ],
+        "restart_action": "restart"
+}%                                                                                                                                                                                             ~ ❯❯❯ curl -H 'Content-Type: application/json' -X DELETE localhost:3000/v1/workflows/three
+~ ❯❯❯ curl -H 'Content-Type: application/json' localhost:3000/v1/workflows/three
+Workflow does not exist.%
+```
