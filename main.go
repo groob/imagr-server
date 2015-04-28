@@ -21,7 +21,11 @@ func init() {
 		log.Fatal("IMAGR_PASSWORD not set")
 	}
 	repoPath = *cmd.RepoPathCmd
-	config.UpdateConfig(repoPath)
+	err := config.UpdateConfig(repoPath)
+	if err != nil {
+		log.Println("Failed to update imagr_config.plist")
+		log.Println(err)
+	}
 }
 
 func main() {
