@@ -3,6 +3,7 @@ package imagr
 import (
 	"crypto/sha512"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,8 +13,7 @@ import (
 )
 
 var (
-	Workflows []Workflow
-	password  string
+	password string
 )
 
 func init() {
@@ -86,26 +86,6 @@ func EncodePassword(p string) string {
 	return password
 }
 
-func isDirectory(path string) (bool, error) {
-	// return true if path is a directory
-	fileInfo, err := os.Stat(path)
-	return fileInfo.IsDir(), err
-}
-
-func wfWalkFn(path string, f os.FileInfo, err error) error {
-	if fileInfo, _ := isDirectory(path); fileInfo == false {
-		if filepath.Ext(path) == ".plist" {
-			log.Printf("Parsing workflow: %s\n", path)
-			workflow, err := ParseWorkflow(path)
-			if err != nil {
-				return err
-			}
-			Workflows = append(Workflows, workflow)
-		}
-	}
-	return nil
-}
-
 func ParseWorkflow(path string) (Workflow, error) {
 	var workflow Workflow
 	f, err := os.Open(path)
@@ -124,10 +104,25 @@ func ParseWorkflow(path string) (Workflow, error) {
 }
 
 func ParseWorkflows(repoPath string) (workflows []Workflow) {
-	Workflows = []Workflow{}                              // reset slice
+	workflows = []Workflow{}                              // reset slice
 	workflowPath := fmt.Sprintf("%v/workflows", repoPath) // repo location
-	filepath.Walk(workflowPath, wfWalkFn)
-	return Workflows
+	files, err := ioutil.ReadDir(workflowPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		//only attempt to read plist files in the workflows directory.
+		if !f.IsDir() && filepath.Ext(f.Name()) == ".plist" {
+			wfPath := fmt.Sprintf("%v/%v", workflowPath, f.Name())
+			log.Println("Reading workflow " + f.Name())
+			workflow, err := ParseWorkflow(wfPath)
+			if err != nil {
+				log.Println("Could not parse workflow " + f.Name())
+			}
+			workflows = append(workflows, workflow)
+		}
+	}
+	return workflows
 }
 
 func (w *Workflow) Save(file string) error {
