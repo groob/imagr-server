@@ -13,7 +13,7 @@ import (
 func Serve(repoPath string) {
 	http.Handle("/", http.FileServer(http.Dir(repoPath)))
 	http.Handle("/v1/workflows/", &wfHandler{repoPath: repoPath})
-	http.ListenAndServe(":3000", nil)
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
 type wfHandler struct {
@@ -61,7 +61,7 @@ func (wf *wfHandler) serveWorkflowGET(w http.ResponseWriter, r *http.Request) {
 	wfName := fmt.Sprintf("%v/workflows/%v.plist", wf.repoPath, key)
 	workflow, err := imagr.ParseWorkflow(wfName)
 	if err != nil {
-		w.Write([]byte("Workflow does not exist."))
+		w.Write([]byte("Workflow does not exist.\n"))
 		log.Println(err)
 	}
 	jsn, err := json.MarshalIndent(workflow, "", "\t")
