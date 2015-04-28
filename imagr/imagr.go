@@ -94,12 +94,14 @@ func isDirectory(path string) (bool, error) {
 
 func wfWalkFn(path string, f os.FileInfo, err error) error {
 	if fileInfo, _ := isDirectory(path); fileInfo == false {
-		log.Printf("Parsing workflow: %s\n", path)
-		workflow, err := ParseWorkflow(path)
-		if err != nil {
-			return err
+		if filepath.Ext(path) == ".plist" {
+			log.Printf("Parsing workflow: %s\n", path)
+			workflow, err := ParseWorkflow(path)
+			if err != nil {
+				return err
+			}
+			Workflows = append(Workflows, workflow)
 		}
-		Workflows = append(Workflows, workflow)
 	}
 	return nil
 }
