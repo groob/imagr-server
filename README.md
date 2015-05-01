@@ -37,3 +37,20 @@ E77EBEF4-D55B-4743-BEB8-B26E4C87E73F
 $ curl -X DELETE http://imagr/v1/workflows/E77EBEF4-D55B-4743-BEB8-B26E4C87E73F
 E77EBEF4-D55B-4743-BEB8-B26E4C87E73F
 ```
+
+# Building
+
+Install the [latest Go distribution](https://golang.org/dl).
+Ensure you have a GOPATH defined. For example:
+
+`mkdir ~/go; export GOPATH="$HOME/go"`
+
+Go get imagr-server and its dependencies:
+
+`go get -u github.com/groob/imagr-server`
+
+Build it:
+
+`cd "$GOPATH/src/github.com/groob/imagr-server"; go build`
+
+You should now find the output binary `imagr-server` in the current working directory.
