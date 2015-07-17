@@ -82,7 +82,7 @@ func (p *ImagrConfig) EncodePlist(f *os.File) error {
 
 func EncodePassword(p string) string {
 	pass512 := sha512.New()
-	pass512.Write([]byte("password"))
+	pass512.Write([]byte(p))
 	password := fmt.Sprintf("%x", pass512.Sum(nil))
 	return password
 }
