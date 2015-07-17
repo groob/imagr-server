@@ -31,6 +31,7 @@ type Workflow struct {
 	Description   string              `plist:"description" json:"description"`
 	Components    []WorkflowComponent `plist:"components" json:"components"`
 	RestartAction string              `plist:"restart_action,omitempty" json:"restart_action,omitempty"`
+	BlessTarget   bool                `plist:"bless_target,omitempty" json:"bless_target,omitempty"`
 }
 
 type ImagrConfig struct {
