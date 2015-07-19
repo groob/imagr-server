@@ -1,26 +1,33 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 
-	"github.com/groob/imagr-server/cmd"
 	"github.com/groob/imagr-server/imagr"
 	"github.com/groob/imagr-server/server"
 )
 
 var (
-	repoPath string
 	password string
+	repoPath string
+	serveCmd bool
 	config   imagr.ImagrConfig
 )
 
 func init() {
+	flag.StringVar(&repoPath, "repo", "/imagr_repo", "path to imagr repo")
+	flag.BoolVar(&serveCmd, "serve", false, "serve the repo over http")
+	flag.Parse()
+	if len(os.Args) == 1 {
+		flag.Usage()
+		os.Exit(1)
+	}
 	password := os.Getenv("IMAGR_PASSWORD")
 	if password == "" {
 		log.Fatal("IMAGR_PASSWORD not set")
 	}
-	repoPath = *cmd.RepoPathCmd
 	err := config.UpdateConfig(repoPath)
 	if err != nil {
 		log.Println("Failed to update imagr_config.plist")
@@ -29,7 +36,7 @@ func init() {
 }
 
 func main() {
-	if *cmd.ServeCmd == true {
+	if serveCmd {
 		server.Serve(repoPath)
 	}
 }
