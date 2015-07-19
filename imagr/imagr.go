@@ -3,6 +3,7 @@ package imagr
 import (
 	"crypto/sha512"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -40,44 +41,26 @@ type ImagrConfig struct {
 }
 
 // Decodes plist into struct
-func (p *Workflow) DecodePlist(f *os.File) error {
-	decoder := plist.NewDecoder(f)
-	err := decoder.Decode(p)
-	if err != nil {
-		return err
-	}
-	return nil
+func (p *Workflow) DecodePlist(r io.ReadSeeker) error {
+	return plist.NewDecoder(r).Decode(p)
 }
 
-func (p *Workflow) EncodePlist(f *os.File) error {
-	encoder := plist.NewEncoder(f)
+func (p *Workflow) EncodePlist(w io.Writer) error {
+	encoder := plist.NewEncoder(w)
 	encoder.Indent("  ")
-	err := encoder.Encode(p)
-	if err != nil {
-		return err
-	}
-	return nil
+	return encoder.Encode(p)
 }
 
 // Decodes plist into struct
-func (p *ImagrConfig) DecodePlist(f *os.File) error {
-	decoder := plist.NewDecoder(f)
-	err := decoder.Decode(p)
-	if err != nil {
-		return err
-	}
-	return nil
+func (p *ImagrConfig) DecodePlist(r io.ReadSeeker) error {
+	return plist.NewDecoder(r).Decode(p)
 }
 
 // Encode a plist and write to file
-func (p *ImagrConfig) EncodePlist(f *os.File) error {
-	encoder := plist.NewEncoder(f)
+func (p *ImagrConfig) EncodePlist(w io.Writer) error {
+	encoder := plist.NewEncoder(w)
 	encoder.Indent("  ")
-	err := encoder.Encode(p)
-	if err != nil {
-		return err
-	}
-	return nil
+	return encoder.Encode(p)
 }
 
 func EncodePassword(p string) string {
@@ -91,17 +74,13 @@ func ParseWorkflow(path string) (Workflow, error) {
 	var workflow Workflow
 	f, err := os.Open(path)
 	if err != nil {
-		return Workflow{}, err
+		return workflow, err
 	}
 	defer f.Close()
 	basename, _ := f.Stat()
 	workflow.ID = strings.TrimSuffix(basename.Name(),
 		filepath.Ext(basename.Name())) // Get ID from FileName
-	err = workflow.DecodePlist(f)
-	if err != nil {
-		return Workflow{}, err
-	}
-	return workflow, nil
+	return workflow, workflow.DecodePlist(f)
 }
 
 func ParseWorkflows(repoPath string) (workflows []Workflow) {
@@ -132,11 +111,7 @@ func (w *Workflow) Save(file string) error {
 		return err
 	}
 	defer f.Close()
-	err = w.EncodePlist(f)
-	if err != nil {
-		return err
-	}
-	return nil
+	return w.EncodePlist(f)
 }
 
 func (i *ImagrConfig) UpdateConfig(repoPath string) error {
@@ -148,9 +123,5 @@ func (i *ImagrConfig) UpdateConfig(repoPath string) error {
 		return err
 	}
 	defer f.Close()
-	err = i.EncodePlist(f)
-	if err != nil {
-		return err
-	}
-	return nil
+	return i.EncodePlist(f)
 }

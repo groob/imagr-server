@@ -1,6 +1,36 @@
 package imagr
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
+
+var w Workflow
+var sampleWorkflow = []byte(`
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>components</key>
+    <array>
+      <dict>
+        <key>type</key>
+        <string>image</string>
+        <key>url</key>
+        <string>http://imagr/images/BaseImage-10.10.3-14D131.hfs.dmg</string>
+      </dict>
+    </array>
+    <key>description</key>
+    <string>Deploys the latest 10.10.x image. Munki tools and local admin account included.</string>
+    <key>name</key>
+    <string>Yosemite - MunkiTools</string>
+    <key>restart_action</key>
+    <string>restart</string>
+    <key>bless_target</key>
+    <false/>
+  </dict>
+</plist>
+`)
 
 func TestEncodePassword(t *testing.T) {
 	passDict := map[string]string{
@@ -13,5 +43,26 @@ func TestEncodePassword(t *testing.T) {
 		if encoded != value {
 			t.Error("Password not hashed correctly")
 		}
+	}
+}
+
+func TestDecodePlist(t *testing.T) {
+	workflow := bytes.NewReader(sampleWorkflow)
+	err := w.DecodePlist(workflow)
+	if err != nil {
+		t.Error(err)
+	}
+	// Test that names match.
+	if w.Name != "Yosemite - MunkiTools" {
+		t.Fatal(err)
+	}
+}
+
+func TestEncodePlist(t *testing.T) {
+	out := []byte(``)
+	b := bytes.NewBuffer(out)
+	err := w.EncodePlist(b)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
