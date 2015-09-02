@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,12 +16,18 @@ var (
 	repoPath string
 	serveCmd bool
 	config   imagr.ImagrConfig
+	Version  = "unreleased"
+	fVersion = flag.Bool("version", false, "display the version")
 )
 
 func init() {
 	flag.StringVar(&repoPath, "repo", "/imagr_repo", "path to imagr repo")
 	flag.BoolVar(&serveCmd, "serve", false, "serve the repo over http")
 	flag.Parse()
+	if *fVersion {
+		fmt.Printf("Imagr Server - Version %s\n", Version)
+		return
+	}
 	if len(os.Args) == 1 {
 		flag.Usage()
 		os.Exit(1)
