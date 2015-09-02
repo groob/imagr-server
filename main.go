@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/groob/imagr-server/imagr"
@@ -35,7 +36,12 @@ func init() {
 	}
 }
 
+func serveWeb() {
+	log.Fatal(http.ListenAndServe(":3001",
+		http.FileServer(http.Dir("web"))))
+}
 func main() {
+	//	go serveWeb()
 	if serveCmd {
 		server.Serve(repoPath)
 	}

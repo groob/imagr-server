@@ -11,6 +11,7 @@ import (
 )
 
 func Serve(repoPath string) {
+	http.Handle("/admin/", http.StripPrefix("/admin/", http.FileServer(http.Dir("./web"))))
 	http.Handle("/", http.FileServer(http.Dir(repoPath)))
 	http.Handle("/v1/workflows/", &wfHandler{repoPath: repoPath})
 	log.Fatal(http.ListenAndServe(":3000", nil))
@@ -24,12 +25,33 @@ func (wf *wfHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Path[len("/v1/workflows/"):]
 	switch key {
 	case "":
-		w.Write([]byte("No workflow selected.\n"))
+		wf.list(w, r)
 	case "all":
 		wf.serveAll(w, r)
 	default:
 		wf.serveWorkflow(w, r)
 	}
+}
+
+func (wf *wfHandler) list(w http.ResponseWriter, r *http.Request) {
+	// a list of workflows
+	type List struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}
+	workflows := imagr.ParseWorkflows(wf.repoPath)
+	var list []List
+	for _, workflow := range workflows {
+		list = append(list, List{workflow.ID, workflow.Name})
+	}
+	jsn, err := json.MarshalIndent(list, "", "\t")
+	if err != nil {
+		log.Println(err)
+		w.Write([]byte("There was an error. Check the logs"))
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Write(jsn)
 }
 
 func (wf *wfHandler) serveAll(w http.ResponseWriter, r *http.Request) {

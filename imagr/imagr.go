@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"howett.net/plist"
+	"github.com/DHowett/go-plist"
 )
 
 var (
